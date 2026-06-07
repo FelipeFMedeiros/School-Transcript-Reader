@@ -30,3 +30,67 @@ O objetivo principal do front-end é apresentar o funcionamento interno do compi
 - **Framework Base:** React com TypeScript configurado via Vite para máxima performance.
 - **Estilização e UI:** TailwindCSS combinado com os componentes pré-fabricados do `shadcn/ui` para construção ágil (botões, modais, tabelas, notificações).
 - **Gerenciamento de Estado:** Utilização do Zustand (já presente no projeto) para manter a fluidez entre o status do upload, progresso da compilação, e dados retornados da API.
+
+### Como Rodar a Aplicação
+
+Este projeto utiliza o **Bun** como gerenciador de pacotes e runtime pela sua velocidade e integração.
+
+**Pré-requisitos:**
+- [Bun](https://bun.sh/) (estamos utilizando a versão **v1.3.14**)
+
+**Passo a passo:**
+1. Abra o terminal e certifique-se de estar dentro da pasta `frontend/`.
+2. Instale as dependências rodando:
+   ```bash
+   bun install
+   ```
+3. Inicie o servidor de desenvolvimento:
+   ```bash
+   bun dev
+   ```
+4. O terminal exibirá um link local (geralmente `http://localhost:5173`). Clique para abrir a aplicação no navegador.
+
+### Estrutura de Diretórios atual
+
+```text
+frontend/
+├── public/
+├── src/
+│   ├── assets/
+│   ├── components/
+│   │   ├── ui/
+│   │   │   ├── alert.tsx
+│   │   │   ├── badge.tsx
+│   │   │   ├── button.tsx
+│   │   │   ├── card.tsx
+│   │   │   ├── scroll-area.tsx
+│   │   │   └── table.tsx
+│   │   ├── ErrorConsole.tsx
+│   │   ├── SuccessDashboard.tsx
+│   │   ├── SymbolTable.tsx
+│   │   └── UploadZone.tsx
+│   ├── layouts/
+│   │   └── MainLayout.tsx
+│   ├── lib/
+│   │   └── utils.ts
+│   ├── pages/
+│   │   ├── HistoryPage.tsx
+│   │   ├── ResultPage.tsx
+│   │   └── UploadPage.tsx
+│   ├── store/
+│   │   └── compilerStore.ts
+│   ├── App.tsx
+│   ├── index.css
+│   └── main.tsx
+├── .gitignore
+├── FRONTEND.md
+├── bun.lock
+├── components.json
+├── eslint.config.js
+├── index.html
+├── package.json
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+```

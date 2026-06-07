@@ -1,8 +1,20 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { MainLayout } from './layouts/MainLayout';
+import { UploadPage } from './pages/UploadPage';
+import { HistoryPage } from './pages/HistoryPage';
+import { ResultPage } from './pages/ResultPage';
+
 function App() {
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-3xl font-bold">School Transcript Reader</h1>
-        </div>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<MainLayout />}>
+                    <Route index element={<UploadPage />} />
+                    <Route path="historico" element={<HistoryPage />} />
+                    <Route path="resultado/:id" element={<ResultPage />} />
+                </Route>
+            </Routes>
+        </BrowserRouter>
     );
 }
 

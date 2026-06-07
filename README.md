@@ -6,7 +6,7 @@ Projeto para a leitura, análise e estruturação de históricos escolares do SI
 
 Para entender melhor a teoria e as regras aplicadas na fase de estruturação e compilação dos dados, você pode acessar as representações visuais abaixo:
 
-- [**Autômatos Finitos (Analisador Léxico)**](https://github.com/FelipeFMedeiros/School-Transcript-Reader/blob/main/automatos_finitos_lexico.html)
+- [**Autômatos Finitos (Analisador Léxico)**](https://felipefmedeiros.github.io/School-Transcript-Reader/automatos_finitos_lexico.html)
   Visão interativa contendo as Expressões Regulares e o diagrama de estados dos tokens mapeados para a leitura do histórico.
 
 - [**Gramática Livre de Contexto (Analisador Sintático)**](https://felipefmedeiros.github.io/School-Transcript-Reader/analise_sintatica_gramatica.html)

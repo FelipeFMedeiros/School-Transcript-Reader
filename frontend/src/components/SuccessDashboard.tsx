@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 export const SuccessDashboard = () => {
-  const { history, activeDocumentId } = useCompilerStore(); const document = history.find(doc => doc.id === activeDocumentId); const studentData = document?.studentData || null;
+  const { activeDocumentDetail } = useCompilerStore(); 
+  const studentData = activeDocumentDetail?.studentData || null;
 
   if (!studentData) {
     return (

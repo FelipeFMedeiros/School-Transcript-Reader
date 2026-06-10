@@ -5,9 +5,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Code } from 'lucide-react';
 
 export const SymbolTable = () => {
-    const { history, activeDocumentId } = useCompilerStore();
-    const document = history.find((doc) => doc.id === activeDocumentId);
-    const symbolTable = document?.symbolTable || [];
+    const { activeDocumentDetail } = useCompilerStore();
+    const symbolTable = activeDocumentDetail?.symbolTable || [];
 
     return (
         <Card className="h-full">

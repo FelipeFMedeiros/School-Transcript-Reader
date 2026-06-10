@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCompilerStore } from '@/store/compilerStore';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,7 +7,11 @@ import { FileText, ArrowRight, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const HistoryPage = () => {
-    const { history, clearHistory } = useCompilerStore();
+    const { history, clearHistory, fetchHistories } = useCompilerStore();
+
+    useEffect(() => {
+        fetchHistories();
+    }, [fetchHistories]);
 
     return (
         <div className="flex-1 w-full max-w-5xl mx-auto py-8 animate-in fade-in duration-500">

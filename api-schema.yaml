@@ -1,0 +1,246 @@
+openapi: 3.0.3
+info:
+  title: School Transcript Reader API
+  version: 0.1.0
+  description: API que recebe um Histórico Escolar (PDF), executa o pipeline do compilador
+    (análise léxica, sintática e semântica) e persiste os resultados.
+paths:
+  /api/histories/:
+    get:
+      operationId: histories_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - histories
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDocumentListList'
+          description: ''
+    post:
+      operationId: histories_create
+      summary: Envia um histórico (PDF) e executa o pipeline do compilador
+      tags:
+      - histories
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDetail'
+          description: ''
+  /api/histories/{id}/:
+    get:
+      operationId: histories_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este document.
+        required: true
+      tags:
+      - histories
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDetail'
+          description: ''
+    delete:
+      operationId: histories_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este document.
+        required: true
+      tags:
+      - histories
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    CompilerError:
+      type: object
+      properties:
+        fase:
+          type: string
+          readOnly: true
+        mensagem:
+          type: string
+        linha:
+          type: integer
+        column:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+      required:
+      - fase
+      - linha
+      - mensagem
+    DocumentDetail:
+      type: object
+      description: GET /api/histories/{id}/ — visão completa, alinhada ao frontend.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        fileName:
+          type: string
+        date:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        processing_time_ms:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        engine_version:
+          type: string
+          maxLength: 20
+        symbolTable:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompilerError'
+          readOnly: true
+        studentData:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+        syntaxTree:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+        semanticAnalysis:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+      required:
+      - date
+      - errors
+      - fileName
+      - id
+      - semanticAnalysis
+      - studentData
+      - symbolTable
+      - syntaxTree
+    DocumentList:
+      type: object
+      description: GET /api/histories/ — visão resumida.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        fileName:
+          type: string
+        date:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+      required:
+      - date
+      - fileName
+      - id
+    PaginatedDocumentListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentList'
+    StatusEnum:
+      enum:
+      - pending
+      - processing
+      - success
+      - error
+      type: string
+      description: |-
+        * `pending` - Pendente
+        * `processing` - Processando
+        * `success` - Sucesso
+        * `error` - Erro
+    UploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+      required:
+      - file
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

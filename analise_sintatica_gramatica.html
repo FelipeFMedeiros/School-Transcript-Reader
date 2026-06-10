@@ -50,11 +50,11 @@ classDef epsilon fill:#fef2f2,stroke:#ef4444,stroke-width:1px,color:#b91c1c
                     "Nº" "do" "documento" "com" "órgão" "expedidor" ":" <SequenciaPalavras> "," T_MARCADOR_LEGENDA <SequenciaPalavras> T_MARCADOR_LEGENDA
                     "Nº" "do" "CPF" ":" T_CPF
 
-<DadosVinculo> ::= "Dados" "do" "Vínculo" "do" "Discente" 
-                   "Matrícula" ":" T_MATRICULA 
+<DadosVinculo> ::= "Dados" "do" "Vínculo" "do" "Discente"
+                   "Matrícula" ":" ( T_MATRICULA | T_NUMERO )   // 11 dígitos (>=2023) ou 8 (grade anterior)
                    "Local" "de" "Nascimento" ":" <SequenciaPalavras> T_MARCADOR_LEGENDA <SequenciaPalavras>
-                   "Curso" ":" <SequenciaPalavras> 
-                   "Status" ":" T_PALAVRA 
+                   "Curso" ":" <SequenciaPalavras>
+                   "Status" ":" T_PALAVRA
                    "Ênfase" ":" <SequenciaPalavrasOuVazio>
 
 <IndicesAcademicos> ::= "Índices" "Acadêmicos" 
@@ -112,46 +112,57 @@ RP4 --> E["ε (Vazio)"]:::epsilon`
             {
                 id: "G_TABELA_DISCIPLINAS",
                 name: "Tabela de Componentes Curriculares",
-                description: "O núcleo do histórico. Lida com múltiplos semestres consecutivos e, dentro de cada semestre, múltiplas disciplinas.",
+                description: "O núcleo do histórico. Varredura orientada a registros que tolera os dois layouts do SIGAA (nome inline x nome na linha anterior) e o ruído de paginação. O período (T_PERIODO_LETIVO) é repetido por linha no formato real; quando agrupado, vale o último período visto.",
                 rules: `
-<CorpoDocumento> ::= "Componentes" "Curriculares" <ListaSemestres> <ResumoCargaHoraria>
+<CorpoDocumento> ::= "Componentes" "Curriculares" <ListaDisciplinas>
 
-<ListaSemestres> ::= <Semestre> <RestoSemestres>
-<RestoSemestres> ::= <Semestre> <RestoSemestres> 
-                   | ε
-
-<Semestre> ::= T_PERIODO_LETIVO <MarcadorOpcional> <ListaDisciplinas>
-
-<ListaDisciplinas> ::= <Disciplina> <RestoDisciplinas>
-<RestoDisciplinas> ::= <Disciplina> <RestoDisciplinas> 
+<ListaDisciplinas> ::= <ItemCorpo> <ListaDisciplinas>
+                     | "Legenda" ...        // âncora de parada
                      | ε
 
-// Regra complexa para uma linha inteira da tabela de notas
-<Disciplina> ::= T_COD_DISCIPLINA <SequenciaPalavras> "(" T_NUMERO ")" T_NUMERO T_CARGA_HORARIA T_NUMERO T_NUMERO T_NUMERO T_NUMERO T_SITUACAO_SIGLA
-               | T_COD_DISCIPLINA <SequenciaPalavras> "(" T_NUMERO ")" "Matriculado" T_CARGA_HORARIA
+// Cada item do corpo é um período, uma disciplina, uma linha de nome ou ruído.
+<ItemCorpo> ::= T_PERIODO_LETIVO <MarcadorOpcional>
+              | <Disciplina>
+              | <LinhaNome>
+              | <Ruido>                      // professor, rodapé, cabeçalho de página
+
+<MarcadorOpcional> ::= T_MARCADOR_LEGENDA    // @ & # § % *
+                     | "e"                   // equivalência (palavra de 1 letra)
+                     | ε
+
+// Layout A — nome inline, após o código:
+<Disciplina> ::= T_COD_DISCIPLINA <SequenciaPalavras> "(" T_NUMERO ")" <CamposNumericos> <Situacao>
+// Layout B — nome herdado da <LinhaNome> imediatamente anterior:
+               | T_COD_DISCIPLINA <CamposNumericos> <Situacao>
+
+<LinhaNome> ::= <SequenciaPalavras> "(" T_NUMERO ")"   // ex.: "Cálculo (08051111)"
+
+<CamposNumericos> ::= ( T_NUMERO | T_CARGA_HORARIA | "-" | "," | "." ) <CamposNumericos>
+                    | ε                      // hora-aula, CH, turma, freq, nota, média
+
+<Situacao> ::= T_SITUACAO_SIGLA              // APR | REP | TRANC | MATR | DISP | ...
+             | "Matriculado"
+             | ε                             // linha incompleta é tolerada (não-fatal)
                 `,
                 graph: `graph TD
 ${mermaidStyles}
-LS((ListaSemestres)):::root --> S1((Semestre)):::nonterminal
-LS --> RS1((RestoSemestres)):::nonterminal
+LD((ListaDisciplinas)):::root --> IC((ItemCorpo)):::nonterminal
+LD --> LD2((ListaDisciplinas)):::nonterminal
 
-S1 --> PL["T_PERIODO_LETIVO (ex: 2023.1)"]:::terminal
-S1 --> MO((MarcadorOpcional)):::nonterminal
-S1 --> LD((ListaDisciplinas)):::nonterminal
-
-LD --> D1((Disciplina)):::nonterminal
-LD --> RD((RestoDisciplinas)):::nonterminal
+IC --> PL["T_PERIODO_LETIVO (ex: 2023.2)"]:::terminal
+IC --> MO((MarcadorOpcional)):::nonterminal
+IC --> D1((Disciplina)):::nonterminal
+IC --> LN((LinhaNome)):::nonterminal
 
 D1 --> CD["T_COD_DISCIPLINA"]:::terminal
-D1 --> SP((SequenciaPalavras)):::nonterminal
-D1 --> PAR["( T_NUMERO )"]:::terminal
-D1 --> CH["T_CARGA_HORARIA"]:::terminal
-D1 --> NOTA["T_NUMERO (Nota)"]:::terminal
+D1 --> SP((SequenciaPalavras — nome inline / herdado)):::nonterminal
+D1 --> CN((CamposNumericos)):::nonterminal
 D1 --> SIT["T_SITUACAO_SIGLA (ex: APR)"]:::terminal
 
-RS1 --> S2((Semestre)):::nonterminal
-RS1 --> RS2((RestoSemestres)):::nonterminal
-RS2 --> E["ε"]:::epsilon`
+LN --> SP2((SequenciaPalavras)):::nonterminal
+LN --> PAR["( T_NUMERO )"]:::terminal
+
+LD2 --> E["ε (fim / 'Legenda')"]:::epsilon`
             },
             {
                 id: "G_EQUIVALENCIAS",

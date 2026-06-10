@@ -4,9 +4,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CircleAlert } from 'lucide-react';
 
 export const ErrorConsole = () => {
-    const { history, activeDocumentId } = useCompilerStore();
-    const document = history.find((doc) => doc.id === activeDocumentId);
-    const errors = document?.errors || [];
+    const { activeDocumentDetail } = useCompilerStore();
+    const errors = activeDocumentDetail?.errors || [];
 
     return (
         <Card className="h-full">

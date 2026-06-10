@@ -10,15 +10,21 @@ import { ArrowLeft } from 'lucide-react';
 export const ResultPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { history, setActiveDocument } = useCompilerStore();
-
-    const document = history.find((doc) => doc.id === id);
+    const { activeDocumentDetail, fetchDocument, isLoading } = useCompilerStore();
 
     useEffect(() => {
-        if (id) setActiveDocument(id);
-    }, [id, setActiveDocument]);
+        if (id) fetchDocument(id);
+    }, [id, fetchDocument]);
 
-    if (!document) {
+    if (isLoading) {
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center text-center">
+                Carregando detalhes do documento...
+            </div>
+        );
+    }
+
+    if (!activeDocumentDetail) {
         return (
             <div className="flex-1 flex flex-col items-center justify-center text-center">
                 <h2 className="text-2xl font-bold mb-2">Documento não encontrado</h2>
@@ -41,7 +47,9 @@ export const ResultPage = () => {
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Voltar
                 </Button>
-                <h1 className="text-2xl font-bold text-gray-900 truncate">Resultados: {document.fileName}</h1>
+                <h1 className="text-2xl font-bold text-gray-900 truncate">
+                    Resultados: {activeDocumentDetail.fileName}
+                </h1>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full pb-8">
@@ -49,7 +57,7 @@ export const ResultPage = () => {
                     <SymbolTable />
                 </div>
                 <div className="lg:col-span-6 h-full">
-                    {document.status === 'success' ? <SuccessDashboard /> : <ErrorConsole />}
+                    {activeDocumentDetail.status === 'success' ? <SuccessDashboard /> : <ErrorConsole />}
                 </div>
             </div>
         </div>

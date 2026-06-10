@@ -38,7 +38,7 @@ classDef final fill:#ffffff,stroke:#111827,stroke-width:5px,color:#111827
                 name: "T_MATRICULA",
                 regex: "\\b[0-9]{11}\\b",
                 example: "20230029704",
-                description: "Reconhece exatamente 11 dígitos contínuos numéricos. 'd' representa a classe de caracteres [0-9].",
+                description: "Reconhece exatamente 11 dígitos contínuos numéricos (matrículas a partir de 2023). 'd' representa a classe de caracteres [0-9]. Matrículas da grade anterior, de 8 dígitos, são lidas como T_NUMERO e recuperadas na análise sintática pela palavra-chave 'Matrícula' — este autômato não muda.",
                 graph: `graph LR\n${mermaidStyles}\nin[ ] --> q0((q0)):::state\nstyle in fill:transparent,stroke:transparent,color:transparent\nq0 -->|d| q1((q1)):::state\nq1 -->|d| q2((q2)):::state\nq2 -->|d| q3((q3)):::state\nq3 -->|d| q4((q4)):::state\nq4 -->|d| q5((q5)):::state\nq5 -->|d| q6((q6)):::state\nq6 -->|d| q7((q7)):::state\nq7 -->|d| q8((q8)):::state\nq8 -->|d| q9((q9)):::state\nq9 -->|d| q10((q10)):::state\nq10 -->|d| q11((q11)):::final`
             },
             {
@@ -108,10 +108,10 @@ classDef final fill:#ffffff,stroke:#111827,stroke-width:5px,color:#111827
             {
                 id: "T_MARCADOR_LEGENDA",
                 name: "T_MARCADOR_LEGENDA & PONTUAÇÕES",
-                regex: "[@&#§%*:/()-]",
-                example: "* ou   @   ou   (",
-                description: "Lê símbolos especiais unitários (incluindo o asterisco de disciplina optativa e os parênteses de blocos textuais).",
-                graph: `graph LR\n${mermaidStyles}\nin[ ] --> q0((q0)):::state\nstyle in fill:transparent,stroke:transparent,color:transparent\nq0 -->|" @, &, #, §, %, *, :, /, -, (, ) "| q1((q1)):::final`
+                regex: "[@&#§%*:/()\\-°º]",
+                example: "* ou   @   ou   (   ou   °",
+                description: "Lê símbolos especiais unitários (incluindo o asterisco de disciplina optativa, os parênteses de blocos textuais e os indicadores ° / º usados em 'Decreto n° ...').",
+                graph: `graph LR\n${mermaidStyles}\nin[ ] --> q0((q0)):::state\nstyle in fill:transparent,stroke:transparent,color:transparent\nq0 -->|" @, &, #, §, %, *, :, /, -, (, ), °, º "| q1((q1)):::final`
             }
         ];
 
@@ -233,7 +233,7 @@ classDef final fill:#ffffff,stroke:#111827,stroke-width:5px,color:#111827
                                             <div className="flex flex-col md:flex-row md:items-center p-4 bg-gray-50 rounded-lg border border-gray-100">
                                                 <div className="w-48 font-bold text-gray-700">Símbolos Especiais:</div>
                                                 <div className="flex-1 font-mono text-blue-600 bg-blue-50 px-3 py-1 rounded">
-                                                    @ & # § % *
+                                                    @ & # § % * ° º
                                                 </div>
                                             </div>
 
